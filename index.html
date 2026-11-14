@@ -266,6 +266,7 @@ footer .swap { position: relative; width: 28px; height: 28px; }
   [data-reveal] { opacity: 0; }
   [data-reveal].is-in { opacity: 1; animation: reveal .7s var(--ease) backwards; animation-delay: var(--d, 0ms); }
   .card[data-reveal].is-in { animation-name: card-in; animation-duration: .8s; }
+  [data-reveal].is-in.no-anim, .card[data-reveal].is-in.no-anim { animation: none; }
 
   /* lens change: cross-fade the swapped content */
   ::view-transition-old(root), ::view-transition-new(root) { animation-duration: .45s; animation-timing-function: var(--ease); }
@@ -604,22 +605,30 @@ footer .swap { position: relative; width: 28px; height: 28px; }
     );
   }
 
-  /* after a lens switch, replay the reveal for the items that just appeared */
-  function replayReveal(name) {
+  /* after a lens switch, items already on or above the screen show at once, without animating.
+     Items further down still reveal when scrolled to, so each item animates at most once. */
+  function settleShown() {
     if (!observer) return;
-    Array.prototype.forEach.call(
-      document.querySelectorAll('[data-only="' + name + '"][data-reveal], [data-only="' + name + '"] [data-reveal]'),
-      function (el) { el.classList.remove("is-in"); observer.observe(el); }
-    );
+    /* already revealed: never replay (a browser restarts an animation when a hidden element is shown again) */
+    Array.prototype.forEach.call(document.querySelectorAll("[data-reveal].is-in"), function (el) {
+      el.classList.add("no-anim");
+    });
+    Array.prototype.forEach.call(document.querySelectorAll("[data-reveal]:not(.is-in)"), function (el) {
+      if (!el.offsetParent) return; /* belongs to the hidden lens */
+      if (el.getBoundingClientRect().top < window.innerHeight) {
+        el.classList.add("is-in", "no-anim");
+        observer.unobserve(el);
+      }
+    });
   }
 
   function switchLens(name) {
     if (body.getAttribute("data-lens") === name) return;
     if (document.startViewTransition && !reduceMotion) {
-      document.startViewTransition(function () { applyLens(name); replayReveal(name); });
+      document.startViewTransition(function () { applyLens(name); settleShown(); });
     } else {
       applyLens(name);
-      replayReveal(name);
+      settleShown();
     }
   }
 
