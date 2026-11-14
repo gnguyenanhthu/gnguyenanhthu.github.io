@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Anh Thu Nguyen Portfolio</title>
-<meta name="description" content="Anh Thu Nguyen: software developer and applied mathematics graduate from Georgia Gwinnett College.">
+<meta name="description" content="Anh Thu Nguyen: full-stack developer (TypeScript, React, Next.js, PostgreSQL). B.S. in IT and Applied Mathematics, Georgia Gwinnett College, summa cum laude.">
 <meta name="theme-color" content="#0d1626">
 <link rel="icon" type="image/png" href="assets/favicon.png" id="favicon">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
@@ -144,7 +144,11 @@ body[data-lens="math"] .lens::after { transform: translateX(100%); }
 .pitch span { display: none; }
 body[data-lens="software"] .pitch .p-software,
 body[data-lens="math"] .pitch .p-math { display: inline; }
-.actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 34px; }
+.open { margin-top: 18px; display: flex; align-items: center; gap: 10px; font: 600 15px var(--font-display); color: var(--accent); }
+.open::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 22%, transparent); }
+.stack-sm { display: grid; gap: 12px; align-content: start; }
+.entry .tags { margin-top: 4px; }
+.actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
 
 .btn {
   --c: 10px; --fill: var(--ink);
@@ -250,8 +254,8 @@ footer .swap { position: relative; width: 28px; height: 28px; }
   .emblem .swap { animation: rise 1s var(--ease) both; }
   .hero h1 .line span { animation: slide-up .9s var(--ease) both; }
   .hero h1 .line + .line span { animation-delay: .12s; }
-  .degree, .pitch, .actions { animation: fade-up .8s var(--ease) both; }
-  .degree { animation-delay: .35s; } .pitch { animation-delay: .45s; } .actions { animation-delay: .55s; }
+  .degree, .pitch, .open, .actions { animation: fade-up .8s var(--ease) both; }
+  .degree { animation-delay: .35s; } .pitch { animation-delay: .45s; } .open { animation-delay: .52s; } .actions { animation-delay: .6s; }
   .emblem .swap img { animation: breathe 6s ease-in-out 2s infinite; }
 
   /* lens change: cross-fade the swapped content */
@@ -298,15 +302,19 @@ footer .swap { position: relative; width: 28px; height: 28px; }
     <div class="wrap">
       <div>
         <h1><span class="line"><span>Anh Thu</span></span><span class="line"><span>Nguyen</span></span></h1>
-        <p class="degree">B.S. in Software Development and Applied Mathematics, Georgia Gwinnett College, 2025. Summa cum laude with a 3.91 GPA.</p>
+        <p class="degree">B.S. in Information Technology (Software Development) with a second major in Applied Mathematics, Georgia Gwinnett College, December 2025. Summa cum laude, 3.91 GPA.</p>
         <p class="pitch">
-          <span class="p-software">I build web and mobile apps with React, Next.js, Flutter and Firebase, from the database schema to the screen people use.</span>
-          <span class="p-math">I model systems with differential equations, and I co-authored a sustainable-tourism study published in the UMAP Journal. I also write production code.</span>
+          <span class="p-software">Full-stack developer working in TypeScript, React and Next.js on top of PostgreSQL. I design the database, the permissions and the interface, and I care that each one holds up.</span>
+          <span class="p-math">I model systems with differential equations, and I co-authored a sustainable-tourism study published in the UMAP Journal.</span>
+        </p>
+        <p class="open">
+          <span data-only="software">Open to software developer and web developer roles.</span>
+          <span data-only="math">Open to roles where mathematical modeling and software meet.</span>
         </p>
         <div class="actions">
           <a class="btn primary cut" href="#work">See my projects</a>
           <a class="btn cut" href="https://github.com/gnguyenanhthu" rel="noopener">GitHub</a>
-          <a class="btn cut" href="#contact">Contact me</a>
+          <a class="btn cut" href="mailto:gnguyenanhthu@gmail.com">Email me</a>
         </div>
       </div>
 
@@ -338,14 +346,19 @@ footer .swap { position: relative; width: 28px; height: 28px; }
           <div class="card-head"><span class="status live">In development</span><a href="https://almostlover.space" rel="noopener">almostlover.space</a></div>
           <h3>Almost Lover</h3>
           <div class="split">
-            <p class="sub">A Vietnamese-language lookup site for audio dramas, novels and manhua, built like an encyclopedia. It hosts no content itself. Each work links to its authors, voice actors and artists, who each get an image, a bio and a list of works.</p>
+            <div class="stack-sm">
+              <p class="sub">A full-stack, Vietnamese-language encyclopedia of audio dramas, novels and manhua. Members add and edit entries, moderators approve them, and every work links to its authors, voice actors and artists.</p>
+              <p class="sub">The rules live in the database, not just the interface, so a request that skips the website is held to the same permissions.</p>
+            </div>
             <ul class="points">
-              <li>Member accounts with favorites, votes and comments.</li>
-              <li>Five permission levels, from member to administrator.</li>
-              <li>Original-size image downloads from object storage.</li>
+              <li>Five nested roles, from member to admin, enforced with PostgreSQL row-level security across more than 60 versioned migrations.</li>
+              <li>A submission and review workflow: contributors send drafts, moderators review them in rounds, and each moderation action is written to a log the app cannot edit.</li>
+              <li>Image uploads checked on the server, stored in Cloudflare R2 through presigned S3 URLs, and cleaned up by a deletion queue.</li>
+              <li>Novels that arrive without a cover get one generated from a template with Satori and Sharp.</li>
+              <li>Google sign-in, ratings, favorites, comments and weekly voting, with database types generated from the schema for type-safe queries.</li>
             </ul>
           </div>
-          <div class="foot"><ul class="tags" aria-label="Technology"><li>Next.js</li><li>Supabase</li><li>PostgreSQL</li><li>Cloudflare R2</li><li>Vercel</li></ul></div>
+          <div class="foot"><ul class="tags" aria-label="Technology"><li>TypeScript</li><li>Next.js</li><li>React</li><li>Tailwind CSS</li><li>Supabase</li><li>PostgreSQL</li><li>Cloudflare R2</li><li>Vercel</li></ul></div>
         </article>
 
         <article class="card cut">
@@ -371,7 +384,7 @@ footer .swap { position: relative; width: 28px; height: 28px; }
         </article>
 
         <article class="card cut">
-          <div class="card-head"><h3>Coding Escape Room</h3><span class="when">Aug 2023 – Dec 2025</span></div>
+          <div class="card-head"><h3>Coding Escape Room</h3><span class="when">Aug 2023 – Dec 2023</span></div>
           <p class="sub">An educational puzzle game that teaches programming concepts. I led the team.</p>
           <ul class="points">
             <li>Structured the application with the MVC pattern.</li>
@@ -383,7 +396,7 @@ footer .swap { position: relative; width: 28px; height: 28px; }
 
         <article class="card cut">
           <div class="card-head"><h3>This portfolio</h3><span class="when">2026</span></div>
-          <p class="sub">A single hand-written page with no framework, hosted on GitHub Pages. The Software and Math switch at the top changes the colors, the logo, the projects and the skills shown.</p>
+          <p class="sub">Hand-written HTML, CSS and JavaScript with no framework or build step, hosted on GitHub Pages. The Software and Math switch uses the View Transitions API, and the page works by keyboard and respects reduced-motion settings.</p>
           <div class="foot">
             <ul class="tags" aria-label="Technology"><li>HTML</li><li>CSS</li><li>JavaScript</li></ul>
             <a href="https://github.com/gnguyenanhthu/gnguyenanhthu.github.io" rel="noopener">Source code</a>
@@ -433,11 +446,21 @@ footer .swap { position: relative; width: 28px; height: 28px; }
       <div class="resume">
         <div>
           <div class="entry">
-            <span class="when">Graduated Fall 2025</span>
+            <span class="when">Aug 2020 – Dec 2025</span>
             <h3>B.S., Georgia Gwinnett College</h3>
-            <p>Software Development and Applied Mathematics. GPA 3.91, summa cum laude.</p>
-            <p>President’s List from Fall 2021 to Fall 2025. Dean’s List in Fall 2020 and Spring 2021.</p>
-            <p data-only="software">Coursework: Advanced Programming, Systems Analysis and Design, Web Technologies, Introduction to Networks.</p>
+            <p>Information Technology, Software Development concentration, with a second major in Applied Mathematics.</p>
+            <p>Summa cum laude. GPA 3.91 overall and 3.95 at Georgia Gwinnett. <span data-only="software">An A in all 15 IT courses.</span><span data-only="math">An A in all 18 math courses at Georgia Gwinnett.</span></p>
+            <p>President’s List for eight semesters in a row, Fall 2021 to Spring 2025. Dean’s List in Fall 2020 and Spring 2021.</p>
+          </div>
+          <div class="entry">
+            <span class="when">2019 – 2020</span>
+            <h3>SUNY Old Westbury</h3>
+            <p>First year of study, including C++ Object-Oriented Design and Linear Algebra, before transferring.</p>
+          </div>
+          <div class="entry">
+            <span class="when">Coursework</span>
+            <ul class="tags" data-only="software"><li>Software Development I and II</li><li>Software Development Project</li><li>Software Testing and QA</li><li>Intro to Databases</li><li>Systems Analysis and Design</li><li>Advanced Programming</li><li>Web Technologies</li><li>Intro to Networks</li><li>C++ Object-Oriented Design</li><li>Discrete Math</li><li>Professional Practice and Ethics</li></ul>
+            <ul class="tags" data-only="math"><li>Real Analysis</li><li>Complex Analysis</li><li>Abstract Algebra I and II</li><li>Mathematical Statistics I and II</li><li>Numerical Methods</li><li>Differential Equations I and II</li><li>Mathematical Modeling</li><li>Advanced Mathematical Modeling</li><li>Linear Algebra</li><li>Calculus I–III</li></ul>
           </div>
           <div class="entry">
             <span class="when">Certification</span>
@@ -448,19 +471,27 @@ footer .swap { position: relative; width: 28px; height: 28px; }
         <div class="skills">
           <div class="skill-group" data-only="software">
             <h3>Languages</h3>
-            <ul class="tags"><li>Java</li><li>JavaScript</li><li>C++</li><li>C#</li><li>Python</li><li>R</li><li>HTML</li><li>CSS</li><li>PHP</li></ul>
+            <ul class="tags"><li>TypeScript</li><li>JavaScript</li><li>Java</li><li>Python</li><li>C++</li><li>C#</li><li>SQL</li><li>PHP</li><li>R</li><li>HTML</li><li>CSS</li></ul>
           </div>
           <div class="skill-group" data-only="software">
-            <h3>Frameworks</h3>
-            <ul class="tags"><li>React</li><li>Next.js</li><li>Node.js</li><li>Flutter</li><li>Firebase</li><li>Supabase</li><li>JavaFX</li><li>Unity</li></ul>
+            <h3>Frontend</h3>
+            <ul class="tags"><li>React</li><li>Next.js</li><li>Tailwind CSS</li><li>Flutter</li><li>Bootstrap</li><li>JavaFX</li><li>Responsive design</li><li>Accessibility</li></ul>
+          </div>
+          <div class="skill-group" data-only="software">
+            <h3>Backend and data</h3>
+            <ul class="tags"><li>Node.js</li><li>PostgreSQL</li><li>Supabase</li><li>Row-level security</li><li>Firebase</li><li>Cloudflare R2</li><li>Database design</li></ul>
+          </div>
+          <div class="skill-group" data-only="software">
+            <h3>Practices</h3>
+            <ul class="tags"><li>Agile</li><li>MVC</li><li>Software testing and QA</li><li>Systems analysis and design</li><li>Technical documentation</li></ul>
           </div>
           <div class="skill-group" data-only="software">
             <h3>Tools</h3>
-            <ul class="tags"><li>Git</li><li>GitHub</li><li>Jira</li><li>Visual Studio</li><li>IntelliJ</li><li>Eclipse</li><li>Cisco Packet Tracer</li></ul>
+            <ul class="tags"><li>Git</li><li>GitHub</li><li>Vercel</li><li>Jira</li><li>Visual Studio</li><li>IntelliJ</li><li>Eclipse</li><li>Unity</li><li>Cisco Packet Tracer</li></ul>
           </div>
           <div class="skill-group" data-only="math">
             <h3>Mathematics</h3>
-            <ul class="tags"><li>Real Analysis</li><li>Mathematical Statistics</li><li>Linear Algebra</li><li>Numerical Methods</li><li>Differential Equations</li><li>Mathematical Modeling</li><li>Abstract Algebra</li></ul>
+            <ul class="tags"><li>Real Analysis</li><li>Complex Analysis</li><li>Mathematical Statistics</li><li>Linear Algebra</li><li>Numerical Methods</li><li>Differential Equations</li><li>Mathematical Modeling</li><li>Abstract Algebra</li></ul>
           </div>
           <div class="skill-group" data-only="math">
             <h3>Programming</h3>
@@ -472,7 +503,7 @@ footer .swap { position: relative; width: 28px; height: 28px; }
           </div>
           <div class="skill-group">
             <h3>Spoken languages</h3>
-            <ul class="tags"><li>English</li><li>Vietnamese</li></ul>
+            <ul class="tags"><li>English</li><li>Vietnamese</li><li>Cantonese</li><li>Mandarin</li></ul>
           </div>
         </div>
       </div>
