@@ -5,127 +5,271 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Anh Thu Nguyen Portfolio</title>
 <meta name="description" content="Anh Thu Nguyen: software developer and applied mathematics graduate from Georgia Gwinnett College.">
-<link rel="icon" type="image/png" href="assets/favicon.png">
+<meta name="theme-color" content="#0d1626">
+<link rel="icon" type="image/png" href="assets/favicon.png" id="favicon">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="preload" as="image" href="assets/logo-sky.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
+/*
+  Skylar: sword and circuit.
+  Shapes borrow the logo's octagon (chamfered corners), lines borrow its circuit traces.
+  The lens switch (Software / Math) swaps the accent between the logo's sky blue and jade.
+*/
+@property --accent { syntax: "<color>"; inherits: true; initial-value: #5aaeff; }
+
 :root {
-  /* Layout: one left-aligned column; a lens switch (Software / Math) retunes accent, pitch, projects and skills. */
-  --bg: #0c1019;
-  --panel: #131a28;
-  --line: #243049;
-  --text: #e2e8f5;
-  --muted: #94a0b8;
-  --accent: #5aaeff;      /* software lens: the sky blue of the Skylar logo */
+  --ink: #0d1626;        /* page: navy of the dark logo */
+  --deep: #13203a;       /* raised surfaces */
+  --trace: #2a3c5e;      /* lines and borders */
+  --paper: #f1ece2;      /* text: the logo's warm white */
+  --muted: #9aa8c2;
+  --sky: #5aaeff;
+  --jade: #5ee6c6;
+  --seal: #e5534b;       /* the red seal, used once */
+  --accent: var(--sky);
   --accent-ink: #061528;
-  --seal: #e5534b;        /* the red seal in the logo, used once per page */
-  --font-display: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
-  --font-body: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --font-display: "Chakra Petch", "Segoe UI", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --max: 1360px;
+  --gutter: clamp(20px, 4vw, 56px);
+  --cut: 14px;           /* chamfer size */
+  --ease: cubic-bezier(.2, .7, .2, 1);
   color-scheme: dark;
 }
-body[data-lens="math"] { --accent: #3fcfb4; --accent-ink: #05231d; } /* math lens: the logo's teal */
+body[data-lens="math"] { --accent: var(--jade); --accent-ink: #04241d; }
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body {
-  margin: 0; background: var(--bg); color: var(--text);
-  font: 400 17px/1.6 var(--font-body);
+  margin: 0; background: var(--ink); color: var(--paper);
+  font: 400 17px/1.65 var(--font-body);
   -webkit-font-smoothing: antialiased;
+  transition: --accent .6s var(--ease);
 }
 img { max-width: 100%; display: block; }
-a { color: var(--accent); text-underline-offset: 3px; }
-a:hover { color: var(--text); }
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
-.wrap { max-width: 880px; margin: 0 auto; padding: 0 20px; }
-h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; }
+a { color: var(--accent); text-underline-offset: 4px; text-decoration-thickness: 1px; }
+a:hover { color: var(--paper); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+h1, h2, h3 { font-family: var(--font-display); margin: 0; text-wrap: balance; }
 p { margin: 0; }
+ul { margin: 0; }
+.wrap { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
 .skip { position: absolute; left: -999px; }
-.skip:focus { left: 12px; top: 12px; background: var(--accent); color: var(--accent-ink); padding: 8px 12px; z-index: 5; }
+.skip:focus { left: 12px; top: 12px; background: var(--accent); color: var(--accent-ink); padding: 8px 12px; z-index: 20; }
 
-/* top bar */
-.bar { border-bottom: 1px solid var(--line); }
-.bar .wrap { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; justify-content: space-between; padding-top: 12px; padding-bottom: 12px; }
-.bar nav { display: flex; flex-wrap: wrap; gap: 4px 20px; font-size: 15px; }
+/* lens visibility: hide whatever belongs to the other lens */
+body[data-lens="software"] [data-only="math"],
+body[data-lens="math"] [data-only="software"] { display: none; }
+
+/* chamfered shapes: outer layer is the border colour, ::before is the fill */
+.cut {
+  --c: var(--cut);
+  position: relative; isolation: isolate;
+  background: var(--trace);
+  clip-path: polygon(var(--c) 0, 100% 0, 100% calc(100% - var(--c)), calc(100% - var(--c)) 100%, 0 100%, 0 var(--c));
+  transition: background-color .3s var(--ease);
+}
+.cut::before {
+  content: ""; position: absolute; inset: 1px; z-index: -1;
+  background: var(--fill, var(--deep));
+  clip-path: polygon(var(--c) 0, 100% 0, 100% calc(100% - var(--c)), calc(100% - var(--c)) 100%, 0 100%, 0 var(--c));
+}
+
+/* ---------- top bar ---------- */
+.bar {
+  position: sticky; top: 0; z-index: 10;
+  background: color-mix(in srgb, var(--ink) 82%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--trace);
+}
+.bar .wrap { display: flex; align-items: center; gap: 16px 32px; padding-top: 12px; padding-bottom: 12px; flex-wrap: wrap; }
+.mark { display: inline-flex; align-items: center; gap: 10px; color: var(--paper); text-decoration: none; font: 600 17px var(--font-display); }
+.mark .swap { position: relative; width: 34px; height: 34px; }
+.bar nav { display: flex; gap: 4px 26px; flex-wrap: wrap; margin-left: auto; font-size: 15px; }
 .bar nav a { color: var(--muted); text-decoration: none; }
-.bar nav a:hover { color: var(--text); }
-.mark { display: inline-flex; align-items: center; gap: 10px; font: 600 15px var(--font-display); color: var(--text); text-decoration: none; }
-.mark img { width: 36px; height: 36px; }
+.bar nav a:hover { color: var(--paper); }
+
+/* logo pairs: both images stacked, the lens decides which shows */
+.swap img { position: absolute; inset: 0; width: 100%; height: 100%; transition: opacity .6s var(--ease); }
+.swap .is-jade { opacity: 0; }
+body[data-lens="math"] .swap .is-sky { opacity: 0; }
+body[data-lens="math"] .swap .is-jade { opacity: 1; }
 
 /* lens switch */
-.lens { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 3px; background: var(--panel); }
-.lens button {
-  font: 600 13px var(--font-display); color: var(--muted); background: none; border: 0;
-  padding: 7px 16px; border-radius: 999px; cursor: pointer; min-height: 36px;
+.lens { --fill: var(--ink); --c: 10px; display: inline-grid; grid-template-columns: 1fr 1fr; padding: 4px; }
+.lens::after {
+  content: ""; position: absolute; z-index: -1; top: 4px; bottom: 4px; left: 4px; width: calc(50% - 4px);
+  background: var(--accent);
+  clip-path: polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px);
+  transition: transform .45s var(--ease);
 }
-.lens button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+body[data-lens="math"] .lens::after { transform: translateX(100%); }
+.lens button {
+  font: 600 14px var(--font-display); letter-spacing: .02em;
+  background: none; border: 0; color: var(--muted); cursor: pointer;
+  min-height: 36px; padding: 0 18px; transition: color .3s;
+}
+.lens button[aria-pressed="true"] { color: var(--accent-ink); }
 
-/* hero */
-.hero { padding: 56px 0 40px; display: grid; grid-template-columns: 1fr 200px; gap: 24px 40px; align-items: center; }
-.hero h1 { font-size: clamp(38px, 8vw, 68px); font-weight: 800; line-height: 1.02; letter-spacing: -0.03em; }
-.hero .logo { width: 200px; height: 200px; }
-.facts { margin-top: 14px; font: 400 14px var(--font-display); color: var(--muted); }
-.facts strong { color: var(--seal); font-weight: 600; }
-.pitch { margin-top: 20px; max-width: 58ch; font-size: 20px; color: var(--text); }
+/* ---------- hero ---------- */
+.hero { position: relative; overflow: hidden; }
+.hero::before { /* faint dot grid, fading out from the logo */
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background-image: radial-gradient(color-mix(in srgb, var(--accent) 35%, transparent) 1px, transparent 1.2px);
+  background-size: 28px 28px;
+  -webkit-mask-image: radial-gradient(ellipse 60% 70% at 78% 45%, #000 0%, transparent 70%);
+          mask-image: radial-gradient(ellipse 60% 70% at 78% 45%, #000 0%, transparent 70%);
+  opacity: .5;
+}
+.hero .wrap {
+  position: relative;
+  display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr);
+  align-items: center; gap: 40px;
+  padding-top: clamp(48px, 8vw, 110px); padding-bottom: clamp(56px, 8vw, 110px);
+}
+.hero h1 {
+  font-size: clamp(52px, 8.4vw, 124px); font-weight: 700;
+  line-height: .92; letter-spacing: -.035em;
+}
+.hero h1 .line { display: block; overflow: hidden; padding-bottom: .06em; }
+.hero h1 .line span { display: block; }
+.hero h1 .line + .line span { color: transparent; -webkit-text-stroke: 1.5px var(--paper); }
+.degree { margin-top: 28px; max-width: 46ch; color: var(--muted); font-size: 16px; }
+.pitch { margin-top: 18px; max-width: 54ch; font-size: clamp(18px, 1.6vw, 21px); line-height: 1.55; }
 .pitch span { display: none; }
 body[data-lens="software"] .pitch .p-software,
 body[data-lens="math"] .pitch .p-math { display: inline; }
-.links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+.actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 34px; }
+
 .btn {
-  display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px;
-  border: 1px solid var(--line); border-radius: 8px; background: var(--panel);
-  color: var(--text); text-decoration: none; font-weight: 500; font-size: 15px;
+  --c: 10px; --fill: var(--ink);
+  display: inline-flex; align-items: center; min-height: 48px; padding: 0 22px;
+  color: var(--paper); text-decoration: none; font: 600 15px var(--font-display); letter-spacing: .02em;
 }
-.btn:hover { border-color: var(--accent); color: var(--text); }
-.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
-.btn.primary:hover { color: var(--accent-ink); filter: brightness(1.08); }
+.btn:hover { background: var(--accent); color: var(--paper); }
+.btn.primary { --fill: var(--accent); background: var(--accent); color: var(--accent-ink); }
+.btn.primary:hover { --fill: var(--paper); background: var(--paper); color: var(--ink); }
 
-/* sections */
-section { padding: 44px 0; border-top: 1px solid var(--line); }
-h2 { font-size: 22px; font-weight: 600; margin-bottom: 24px; }
-.stack { display: flex; flex-direction: column; gap: 16px; }
+/* the logo and its circuit traces */
+.emblem { position: relative; width: min(100%, 520px); aspect-ratio: 1; justify-self: end; }
+.emblem .swap { position: absolute; inset: 9%; }
+.emblem .swap img { filter: drop-shadow(0 0 28px color-mix(in srgb, var(--accent) 30%, transparent)); }
+.traces { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.traces path { fill: none; stroke: var(--accent); stroke-width: 1.5; opacity: .55; }
+.traces circle { fill: var(--ink); stroke: var(--accent); stroke-width: 1.5; }
 
-.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 22px; display: flex; flex-direction: column; gap: 12px; }
-.card-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; align-items: baseline; }
-.card h3 { font-size: 18px; font-weight: 600; }
-.card .sub { color: var(--muted); font-size: 15px; }
-.card time { font: 400 13px var(--font-display); color: var(--muted); }
-.tags { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; padding: 0; margin: 0; }
-.tags li { font: 400 13px var(--font-display); color: var(--muted); border: 1px solid var(--line); border-radius: 6px; padding: 3px 9px; }
-.card ul.points { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
-.status { font: 600 12px var(--font-display); color: var(--accent); }
+/* ---------- sections ---------- */
+section { padding: clamp(56px, 7vw, 96px) 0; border-top: 1px solid var(--trace); }
+.sec-head { display: flex; align-items: center; gap: 18px; margin-bottom: 36px; }
+.sec-head h2 { font-size: clamp(28px, 3vw, 40px); font-weight: 600; letter-spacing: -.01em; }
+.sec-head::after { /* circuit trace ending in a node */
+  content: ""; flex: 1; height: 9px; min-width: 40px;
+  background:
+    radial-gradient(circle at calc(100% - 4.5px) 50%, transparent 2.5px, var(--accent) 3px, var(--accent) 4.5px, transparent 5px) right / 9px 9px no-repeat,
+    linear-gradient(var(--trace), var(--trace)) left center / calc(100% - 9px) 1px no-repeat;
+}
 
-[data-only] { display: none !important; }
-body[data-lens="software"] [data-only="software"],
-body[data-lens="math"] [data-only="math"] { display: flex !important; }
+/* project grid: 6 columns, cards span 6, 3 or 2 */
+.grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 20px; }
+.card { grid-column: span 3; padding: 28px; display: flex; flex-direction: column; gap: 14px; }
+.card.wide { grid-column: span 6; }
+.card.third { grid-column: span 2; }
+.card:hover { background: color-mix(in srgb, var(--accent) 70%, var(--trace)); }
+.card h3 { font-size: 22px; font-weight: 600; line-height: 1.2; }
+.card.wide h3 { font-size: clamp(26px, 2.6vw, 34px); }
+.card-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 20px; }
+.when { font: 500 14px var(--font-display); color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.card .sub { color: var(--muted); max-width: 68ch; }
+.card .points { padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; max-width: 72ch; }
+.card .points li { position: relative; padding-left: 22px; }
+.card .points li::before { /* a small diamond, like the sword's pommel */
+  content: ""; position: absolute; left: 3px; top: .62em; width: 7px; height: 7px;
+  border: 1.5px solid var(--accent); transform: rotate(45deg);
+}
+.card .foot { margin-top: auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 20px; padding-top: 6px; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; padding: 0; }
+.tags li {
+  font: 500 13px var(--font-display); letter-spacing: .02em; color: var(--paper);
+  padding: 4px 10px; background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+}
+.status { display: inline-flex; align-items: center; gap: 8px; font: 600 14px var(--font-display); color: var(--accent); }
+.status.live::before { content: ""; width: 8px; height: 8px; background: var(--seal); border-radius: 50%; box-shadow: 0 0 0 4px color-mix(in srgb, var(--seal) 25%, transparent); }
+.wide .split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px 40px; }
 
-/* resume rows */
-.row { display: grid; grid-template-columns: 150px 1fr; gap: 6px 24px; padding: 18px 0; border-bottom: 1px solid var(--line); }
-.row:last-child { border-bottom: 0; }
-.row time { font: 400 14px var(--font-display); color: var(--muted); padding-top: 3px; }
-.row h3 { font-size: 17px; font-weight: 600; margin-bottom: 4px; }
-.row p { color: var(--muted); font-size: 16px; }
-.row p + p { margin-top: 4px; }
+/* resume: education left, skills right */
+.resume { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px 56px; }
+.entry { padding: 22px 0; border-bottom: 1px solid var(--trace); display: grid; gap: 6px; }
+.entry:first-child { padding-top: 0; }
+.entry h3 { font-size: 21px; font-weight: 600; }
+.entry p { color: var(--muted); }
+.entry .when { order: -1; }
+.skills { display: grid; gap: 24px; }
+.skill-group h3 { font-size: 16px; font-weight: 600; color: var(--muted); margin-bottom: 10px; }
 
-/* skills */
-.skills { display: flex; flex-direction: column; gap: 18px; }
-.skill-group { display: flex; flex-direction: column; gap: 8px; }
-.skill-group h3 { font-size: 15px; font-weight: 600; color: var(--muted); }
-
-.contact { display: grid; grid-template-columns: 150px 1fr; gap: 8px 24px; margin: 0; }
-.contact dt { color: var(--muted); font: 400 14px var(--font-display); padding-top: 2px; }
+/* youtube + contact side by side */
+.duo { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
+.duo .card { grid-column: auto; }
+.email { font: 600 clamp(22px, 2.4vw, 30px) var(--font-display); word-break: break-all; }
+.contact { display: grid; grid-template-columns: max-content 1fr; gap: 6px 24px; margin: 0; }
+.contact dt { color: var(--muted); }
 .contact dd { margin: 0; }
 
-footer { border-top: 1px solid var(--line); padding: 28px 0 48px; color: var(--muted); font-size: 14px; }
+footer { border-top: 1px solid var(--trace); }
+footer .wrap { display: flex; align-items: center; gap: 12px; padding-top: 28px; padding-bottom: 40px; color: var(--muted); font-size: 15px; }
+footer .swap { position: relative; width: 28px; height: 28px; }
 
+/* ---------- responsive ---------- */
+@media (max-width: 960px) {
+  .hero .wrap { grid-template-columns: 1fr; }
+  .emblem { width: min(70vw, 340px); justify-self: start; grid-row: 1; }
+  .card, .card.third { grid-column: span 6; }
+  .wide .split, .resume, .duo { grid-template-columns: 1fr; }
+}
 @media (max-width: 640px) {
   body { font-size: 16px; }
-  .hero { grid-template-columns: 1fr; padding-top: 36px; }
-  .hero .logo { width: 120px; height: 120px; grid-row: 1; }
-  .row, .contact { grid-template-columns: 1fr; }
+  .bar { position: static; }
+  .bar .wrap { gap: 10px 12px; }
+  .bar nav { order: 3; width: 100%; margin-left: 0; }
+  .mark { font-size: 15px; gap: 8px; }
+  .mark .swap { width: 28px; height: 28px; }
+  .lens { margin-left: auto; }
+  .lens button { padding: 0 12px; font-size: 13px; }
+  .card { padding: 22px; }
 }
-@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+/* ---------- motion: one opening sequence ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  .traces path { stroke-dasharray: var(--len, 400); stroke-dashoffset: var(--len, 400); animation: draw 1.1s var(--ease) forwards; animation-delay: calc(.35s + var(--i, 0) * .12s); }
+  .traces circle { transform-box: fill-box; transform-origin: center; transform: scale(0); animation: node .4s var(--ease) forwards; animation-delay: calc(1.25s + var(--i, 0) * .12s); }
+  .emblem .swap { animation: rise 1s var(--ease) both; }
+  .hero h1 .line span { animation: slide-up .9s var(--ease) both; }
+  .hero h1 .line + .line span { animation-delay: .12s; }
+  .degree, .pitch, .actions { animation: fade-up .8s var(--ease) both; }
+  .degree { animation-delay: .35s; } .pitch { animation-delay: .45s; } .actions { animation-delay: .55s; }
+  .emblem .swap img { animation: breathe 6s ease-in-out 2s infinite; }
+
+  /* lens change: cross-fade the swapped content */
+  ::view-transition-old(root), ::view-transition-new(root) { animation-duration: .45s; animation-timing-function: var(--ease); }
+}
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@keyframes node { to { transform: scale(1); } }
+@keyframes rise { from { opacity: 0; transform: scale(.92) rotate(-4deg); filter: blur(6px); } to { opacity: 1; transform: none; filter: none; } }
+@keyframes slide-up { from { transform: translateY(105%); } to { transform: none; } }
+@keyframes fade-up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes breathe {
+  0%, 100% { filter: drop-shadow(0 0 22px color-mix(in srgb, var(--accent) 22%, transparent)); }
+  50%      { filter: drop-shadow(0 0 40px color-mix(in srgb, var(--accent) 42%, transparent)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  body, .swap img, .lens::after, .cut { transition: none; }
+}
 </style>
 </head>
 <body data-lens="software">
@@ -133,14 +277,16 @@ footer { border-top: 1px solid var(--line); padding: 28px 0 48px; color: var(--m
 
 <header class="bar">
   <div class="wrap">
-    <a class="mark" href="#top"><img src="assets/favicon.png" alt="" width="36" height="36">anh.thu.nguyen</a>
+    <a class="mark" href="#top">
+      <span class="swap" aria-hidden="true"><img class="is-sky" src="assets/mark-sky.png" alt="" width="34" height="34"><img class="is-jade" src="assets/mark-jade.png" alt="" width="34" height="34"></span>
+      Anh Thu Nguyen
+    </a>
     <nav aria-label="Sections">
       <a href="#work">Projects</a>
       <a href="#resume">Resume</a>
-      <a href="#youtube">YouTube</a>
       <a href="#contact">Contact</a>
     </nav>
-    <div class="lens" role="group" aria-label="Show my work as">
+    <div class="lens cut" role="group" aria-label="Show my work as">
       <button type="button" id="lens-software" aria-pressed="true">Software</button>
       <button type="button" id="lens-math" aria-pressed="false">Math</button>
     </div>
@@ -148,216 +294,256 @@ footer { border-top: 1px solid var(--line); padding: 28px 0 48px; color: var(--m
 </header>
 
 <main id="top">
-  <div class="wrap">
-    <div class="hero">
+  <div class="hero">
+    <div class="wrap">
       <div>
-        <h1>Anh Thu<br>Nguyen</h1>
-        <p class="facts">B.S. Software Development &amp; Applied Mathematics · Georgia Gwinnett College · Fall 2025 · GPA 3.91 · <strong>Summa Cum Laude</strong></p>
+        <h1><span class="line"><span>Anh Thu</span></span><span class="line"><span>Nguyen</span></span></h1>
+        <p class="degree">B.S. in Software Development and Applied Mathematics, Georgia Gwinnett College, 2025. Summa cum laude with a 3.91 GPA.</p>
         <p class="pitch">
-          <span class="p-software">Software developer with a second major in applied mathematics. I build web and mobile apps with React, Next.js, Flutter and Firebase, from the database to the screen people use.</span>
-          <span class="p-math">Applied mathematics graduate who also writes production code. I model systems with differential equations and co-authored a sustainable-tourism study published in the UMAP Journal.</span>
+          <span class="p-software">I build web and mobile apps with React, Next.js, Flutter and Firebase, from the database schema to the screen people use.</span>
+          <span class="p-math">I model systems with differential equations, and I co-authored a sustainable-tourism study published in the UMAP Journal. I also write production code.</span>
         </p>
-        <div class="links">
-          <a class="btn primary" href="#resume">Read my resume</a>
-          <a class="btn" href="https://github.com/gnguyenanhthu" rel="noopener">GitHub</a>
-          <a class="btn" href="https://www.youtube.com/@AlmostLover" rel="noopener">YouTube channel</a>
+        <div class="actions">
+          <a class="btn primary cut" href="#work">See my projects</a>
+          <a class="btn cut" href="https://github.com/gnguyenanhthu" rel="noopener">GitHub</a>
+          <a class="btn cut" href="#contact">Contact me</a>
         </div>
       </div>
-      <img class="logo" src="assets/logo.png" alt="Skylar logo: a sword crossing the characters 羽天 inside an octagon" width="200" height="200">
+
+      <div class="emblem">
+        <svg class="traces" viewBox="0 0 520 520" aria-hidden="true">
+          <path style="--i:0;--len:200" d="M70 150 H22 L4 168 V250"/>
+          <path style="--i:1;--len:230" d="M64 330 H34 L14 350 V470 H60"/>
+          <path style="--i:2;--len:190" d="M452 120 H492 L512 100 V8"/>
+          <path style="--i:3;--len:210" d="M460 380 H500 V468 L480 488 H420"/>
+          <circle style="--i:0" cx="4" cy="254" r="4.5"/>
+          <circle style="--i:1" cx="64" cy="470" r="4.5"/>
+          <circle style="--i:2" cx="512" cy="4" r="4.5"/>
+          <circle style="--i:3" cx="416" cy="488" r="4.5"/>
+        </svg>
+        <div class="swap">
+          <img class="is-sky" src="assets/logo-sky.webp" alt="Skylar logo: a sword through the characters 羽天 inside an octagon" width="380" height="380">
+          <img class="is-jade" src="assets/logo-jade.webp" alt="" width="380" height="380">
+        </div>
+      </div>
     </div>
+  </div>
 
-    <section id="work" aria-labelledby="work-h">
-      <h2 id="work-h">Projects</h2>
-      <div class="stack">
+  <section id="work" aria-labelledby="work-h">
+    <div class="wrap">
+      <div class="sec-head"><h2 id="work-h">Projects</h2></div>
 
-        <!-- Software lens -->
-        <article class="card" data-only="software">
-          <span class="status">In development</span>
+      <div class="grid" data-only="software">
+        <article class="card wide cut">
+          <div class="card-head"><span class="status live">In development</span><a href="https://almostlover.space" rel="noopener">almostlover.space</a></div>
           <h3>Almost Lover</h3>
-          <p class="sub">A Vietnamese-language lookup site for audio dramas, novels and manhua, built like an encyclopedia. It hosts no content itself. Each work links to its authors, voice actors and artists, who each get an image, a bio and a list of works.</p>
-          <ul class="points">
-            <li>Member accounts with favorites, votes and comments.</li>
-            <li>Five permission levels, from member to administrator.</li>
-            <li>Original-size image downloads from object storage.</li>
-          </ul>
-          <ul class="tags" aria-label="Technology">
-            <li>Next.js</li><li>Supabase</li><li>PostgreSQL</li><li>Cloudflare R2</li><li>Vercel</li>
-          </ul>
-          <p><a href="https://almostlover.space" rel="noopener">almostlover.space</a></p>
+          <div class="split">
+            <p class="sub">A Vietnamese-language lookup site for audio dramas, novels and manhua, built like an encyclopedia. It hosts no content itself. Each work links to its authors, voice actors and artists, who each get an image, a bio and a list of works.</p>
+            <ul class="points">
+              <li>Member accounts with favorites, votes and comments.</li>
+              <li>Five permission levels, from member to administrator.</li>
+              <li>Original-size image downloads from object storage.</li>
+            </ul>
+          </div>
+          <div class="foot"><ul class="tags" aria-label="Technology"><li>Next.js</li><li>Supabase</li><li>PostgreSQL</li><li>Cloudflare R2</li><li>Vercel</li></ul></div>
         </article>
 
-        <article class="card" data-only="software">
-          <div class="card-head"><h3>Taskun</h3><time>Jan 2025 – May 2025</time></div>
+        <article class="card cut">
+          <div class="card-head"><h3>Taskun</h3><span class="when">Jan – May 2025</span></div>
           <p class="sub">A mobile task manager that turns productivity into an RPG.</p>
           <ul class="points">
-            <li>Task creation, editing and tracking with weekly and monthly calendar views.</li>
+            <li>Create, edit and track tasks in weekly and monthly calendar views.</li>
             <li>Firebase authentication and database for user data.</li>
             <li>App state managed with Provider.</li>
           </ul>
-          <ul class="tags" aria-label="Technology"><li>Flutter</li><li>Dart</li><li>Firebase</li></ul>
+          <div class="foot"><ul class="tags" aria-label="Technology"><li>Flutter</li><li>Dart</li><li>Firebase</li></ul></div>
         </article>
 
-        <article class="card" data-only="software">
-          <div class="card-head"><h3>WanderWorks</h3><time>Jan 2024 – May 2024</time></div>
+        <article class="card cut">
+          <div class="card-head"><h3>WanderWorks</h3><span class="when">Jan – May 2024</span></div>
           <p class="sub">A team-built web app for planning travel itineraries and activities.</p>
           <ul class="points">
             <li>Designed UI components and wrote the usability documentation.</li>
             <li>Built features in React and Node.js on Firebase backend services.</li>
             <li>Worked in Agile sprints with Jira and GitHub.</li>
           </ul>
-          <ul class="tags" aria-label="Technology"><li>React</li><li>Node.js</li><li>Firebase</li><li>Bootstrap</li><li>Jira</li></ul>
+          <div class="foot"><ul class="tags" aria-label="Technology"><li>React</li><li>Node.js</li><li>Firebase</li><li>Bootstrap</li><li>Jira</li></ul></div>
         </article>
 
-        <article class="card" data-only="software">
-          <div class="card-head"><h3>Coding Escape Room</h3><time>Aug 2023 – Dec 2025</time></div>
+        <article class="card cut">
+          <div class="card-head"><h3>Coding Escape Room</h3><span class="when">Aug 2023 – Dec 2025</span></div>
           <p class="sub">An educational puzzle game that teaches programming concepts. I led the team.</p>
           <ul class="points">
             <li>Structured the application with the MVC pattern.</li>
-            <li>Built the graphical interface and core gameplay in Java and JavaFX.</li>
+            <li>Built the interface and core gameplay in Java and JavaFX.</li>
             <li>Ran the project in Jira on a Waterfall model and wrote the system design documentation.</li>
           </ul>
-          <ul class="tags" aria-label="Technology"><li>Java</li><li>JavaFX</li><li>MVC</li><li>Jira</li></ul>
+          <div class="foot"><ul class="tags" aria-label="Technology"><li>Java</li><li>JavaFX</li><li>MVC</li><li>Jira</li></ul></div>
         </article>
 
-        <article class="card" data-only="software">
-          <h3>This portfolio</h3>
-          <p class="sub">A single hand-written page with no framework, hosted on GitHub Pages. The Software and Math switch above changes the pitch, the accent color, the projects and the skills shown.</p>
-          <ul class="tags" aria-label="Technology"><li>HTML</li><li>CSS</li><li>JavaScript</li></ul>
-          <p><a href="https://github.com/gnguyenanhthu/gnguyenanhthu.github.io" rel="noopener">Source on GitHub</a></p>
+        <article class="card cut">
+          <div class="card-head"><h3>This portfolio</h3><span class="when">2026</span></div>
+          <p class="sub">A single hand-written page with no framework, hosted on GitHub Pages. The Software and Math switch at the top changes the colors, the logo, the projects and the skills shown.</p>
+          <div class="foot">
+            <ul class="tags" aria-label="Technology"><li>HTML</li><li>CSS</li><li>JavaScript</li></ul>
+            <a href="https://github.com/gnguyenanhthu/gnguyenanhthu.github.io" rel="noopener">Source code</a>
+          </div>
+        </article>
+      </div>
+
+      <div class="grid" data-only="math">
+        <article class="card wide cut">
+          <div class="card-head"><span class="status">Published in the UMAP Journal</span><span class="when">Aug – Dec 2025</span></div>
+          <h3>A Model for Sustainable Tourism in Juneau, Alaska</h3>
+          <div class="split">
+            <p class="sub">A co-authored modeling study from the Mathematical Contest in Modeling (MCM) that analyzes the dynamics of sustainable tourism.</p>
+            <ul class="points">
+              <li>Modeled tourism with logistic growth and Lotka–Volterra competition equations.</li>
+              <li>Found equilibrium points and their stability using Jacobian matrices and eigenvalues.</li>
+              <li>Modeled interactions between destinations to test the effect of tourism policies.</li>
+            </ul>
+          </div>
+          <div class="foot"><ul class="tags" aria-label="Methods"><li>Differential equations</li><li>Dynamical systems</li><li>Mathematical modeling</li></ul></div>
         </article>
 
-        <!-- Math lens -->
-        <article class="card" data-only="math">
-          <span class="status">Published · UMAP Journal</span>
-          <div class="card-head"><h3>A Model for Sustainable Tourism in Juneau, Alaska</h3><time>Aug 2025 – Dec 2025</time></div>
-          <p class="sub">Co-authored modeling study from the Mathematical Contest in Modeling (MCM).</p>
-          <ul class="points">
-            <li>Modeled tourism with logistic growth and Lotka–Volterra competition equations.</li>
-            <li>Found equilibrium points and their stability using Jacobian matrices and eigenvalues.</li>
-            <li>Modeled interactions between destinations to test the effect of tourism policies.</li>
-          </ul>
-          <ul class="tags" aria-label="Methods"><li>Differential equations</li><li>Dynamical systems</li><li>Mathematical modeling</li></ul>
-        </article>
-
-        <article class="card" data-only="math">
+        <article class="card third cut">
           <span class="status">Presentation</span>
           <h3>Competition Models: Rabbits vs. Sheep</h3>
-          <p class="sub">Interspecific competition with Lotka–Volterra systems: logistic growth, nondimensionalization, equilibrium stability, and the conditions for coexistence or exclusion.</p>
+          <p class="sub">Interspecific competition in Lotka–Volterra systems: logistic growth, nondimensionalization, equilibrium stability, and when species coexist or one wins out.</p>
         </article>
 
-        <article class="card" data-only="math">
+        <article class="card third cut">
           <span class="status">Presentation</span>
           <h3>One-Dimensional Maps and Stability of Fixed Points</h3>
           <p class="sub">Discrete dynamical systems and difference equations: stability of fixed points by linearization, with cobweb diagrams showing convergence and chaos.</p>
         </article>
 
-        <article class="card" data-only="math">
+        <article class="card third cut">
           <span class="status">Presentation</span>
           <h3>Fractals and Cantor Set Dimension</h3>
-          <p class="sub">Self-similar fractals and the Cantor set, and how similarity dimension gives fractals a fractional dimension.</p>
+          <p class="sub">Self-similar fractals and the Cantor set, and how similarity dimension gives a fractal a dimension that is not a whole number.</p>
         </article>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <section id="resume" aria-labelledby="resume-h">
-      <h2 id="resume-h">Resume</h2>
-      <div>
-        <div class="row">
-          <time>Fall 2025</time>
-          <div>
+  <section id="resume" aria-labelledby="resume-h">
+    <div class="wrap">
+      <div class="sec-head"><h2 id="resume-h">Resume</h2></div>
+      <div class="resume">
+        <div>
+          <div class="entry">
+            <span class="when">Graduated Fall 2025</span>
             <h3>B.S., Georgia Gwinnett College</h3>
-            <p>Software Development &amp; Applied Mathematics. GPA 3.91, Summa Cum Laude.</p>
-            <p>President’s List, Fall 2021 – Fall 2025. Dean’s List, Fall 2020 and Spring 2021.</p>
+            <p>Software Development and Applied Mathematics. GPA 3.91, summa cum laude.</p>
+            <p>President’s List from Fall 2021 to Fall 2025. Dean’s List in Fall 2020 and Spring 2021.</p>
             <p data-only="software">Coursework: Advanced Programming, Systems Analysis and Design, Web Technologies, Introduction to Networks.</p>
           </div>
-        </div>
-        <div class="row">
-          <time>Certification</time>
-          <div>
+          <div class="entry">
+            <span class="when">Certification</span>
             <h3>IT Specialist – Networking</h3>
           </div>
         </div>
+
+        <div class="skills">
+          <div class="skill-group" data-only="software">
+            <h3>Languages</h3>
+            <ul class="tags"><li>Java</li><li>JavaScript</li><li>C++</li><li>C#</li><li>Python</li><li>R</li><li>HTML</li><li>CSS</li><li>PHP</li></ul>
+          </div>
+          <div class="skill-group" data-only="software">
+            <h3>Frameworks</h3>
+            <ul class="tags"><li>React</li><li>Next.js</li><li>Node.js</li><li>Flutter</li><li>Firebase</li><li>Supabase</li><li>JavaFX</li><li>Unity</li></ul>
+          </div>
+          <div class="skill-group" data-only="software">
+            <h3>Tools</h3>
+            <ul class="tags"><li>Git</li><li>GitHub</li><li>Jira</li><li>Visual Studio</li><li>IntelliJ</li><li>Eclipse</li><li>Cisco Packet Tracer</li></ul>
+          </div>
+          <div class="skill-group" data-only="math">
+            <h3>Mathematics</h3>
+            <ul class="tags"><li>Real Analysis</li><li>Mathematical Statistics</li><li>Linear Algebra</li><li>Numerical Methods</li><li>Differential Equations</li><li>Mathematical Modeling</li><li>Abstract Algebra</li></ul>
+          </div>
+          <div class="skill-group" data-only="math">
+            <h3>Programming</h3>
+            <ul class="tags"><li>Python</li><li>R</li><li>Mathematica</li><li>Java</li><li>C++</li></ul>
+          </div>
+          <div class="skill-group" data-only="math">
+            <h3>Data and computation</h3>
+            <ul class="tags"><li>Statistical modeling</li><li>Data analysis</li><li>Numerical simulation</li><li>Algorithmic problem solving</li><li>Git and GitHub</li></ul>
+          </div>
+          <div class="skill-group">
+            <h3>Spoken languages</h3>
+            <ul class="tags"><li>English</li><li>Vietnamese</li></ul>
+          </div>
+        </div>
       </div>
+    </div>
+  </section>
 
-      <h2 style="margin-top:36px">Skills</h2>
-      <div class="skills">
-        <div class="skill-group" data-only="software">
-          <h3>Languages</h3>
-          <ul class="tags"><li>Java</li><li>JavaScript</li><li>C++</li><li>C#</li><li>Python</li><li>R</li><li>HTML</li><li>CSS</li><li>PHP</li></ul>
+  <section id="contact" aria-labelledby="contact-h">
+    <div class="wrap">
+      <div class="sec-head"><h2 id="contact-h">Contact</h2></div>
+      <div class="duo">
+        <div class="card cut">
+          <h3>Email me</h3>
+          <a class="email" href="mailto:gnguyenanhthu@gmail.com">gnguyenanhthu@gmail.com</a>
+          <dl class="contact">
+            <dt>GitHub</dt><dd><a href="https://github.com/gnguyenanhthu" rel="noopener">github.com/gnguyenanhthu</a></dd>
+            <dt>Based in</dt><dd>Lawrenceville, Georgia</dd>
+          </dl>
         </div>
-        <div class="skill-group" data-only="software">
-          <h3>Frameworks</h3>
-          <ul class="tags"><li>React</li><li>Next.js</li><li>Node.js</li><li>Flutter</li><li>Firebase</li><li>Supabase</li><li>JavaFX</li><li>Unity</li></ul>
-        </div>
-        <div class="skill-group" data-only="software">
-          <h3>Tools</h3>
-          <ul class="tags"><li>Git</li><li>GitHub</li><li>Jira</li><li>Visual Studio</li><li>IntelliJ</li><li>Eclipse</li><li>Cisco Packet Tracer</li></ul>
-        </div>
-        <div class="skill-group" data-only="math">
-          <h3>Mathematics</h3>
-          <ul class="tags"><li>Real Analysis</li><li>Mathematical Statistics</li><li>Linear Algebra</li><li>Numerical Methods</li><li>Differential Equations</li><li>Mathematical Modeling</li><li>Abstract Algebra</li></ul>
-        </div>
-        <div class="skill-group" data-only="math">
-          <h3>Programming</h3>
-          <ul class="tags"><li>Python</li><li>R</li><li>Mathematica</li><li>Java</li><li>C++</li></ul>
-        </div>
-        <div class="skill-group" data-only="math">
-          <h3>Data and computation</h3>
-          <ul class="tags"><li>Statistical modeling</li><li>Data analysis</li><li>Numerical simulation</li><li>Algorithmic problem solving</li><li>Git / GitHub</li></ul>
-        </div>
-        <div class="skill-group">
-          <h3>Spoken languages</h3>
-          <ul class="tags"><li>English</li><li>Vietnamese</li></ul>
+        <div class="card cut" id="youtube">
+          <h3>Almost Lover on YouTube</h3>
+          <p class="sub">I run the Almost Lover channel alongside the website.</p>
+          <div class="foot"><a class="btn primary cut" href="https://www.youtube.com/@AlmostLover" rel="noopener">Open the channel</a></div>
         </div>
       </div>
-    </section>
-
-    <section id="youtube" aria-labelledby="yt-h">
-      <h2 id="yt-h">YouTube</h2>
-      <article class="card">
-        <h3>Almost Lover channel</h3>
-        <p class="sub">I run the Almost Lover channel alongside the website.</p>
-        <p><a class="btn primary" href="https://www.youtube.com/@AlmostLover" rel="noopener">Open the channel</a></p>
-      </article>
-    </section>
-
-    <section id="contact" aria-labelledby="contact-h">
-      <h2 id="contact-h">Contact</h2>
-      <dl class="contact">
-        <dt>Email</dt><dd><a href="mailto:gnguyenanhthu@gmail.com">gnguyenanhthu@gmail.com</a></dd>
-        <dt>GitHub</dt><dd><a href="https://github.com/gnguyenanhthu" rel="noopener">github.com/gnguyenanhthu</a></dd>
-        <dt>YouTube</dt><dd><a href="https://www.youtube.com/@AlmostLover" rel="noopener">youtube.com/@AlmostLover</a></dd>
-        <dt>Location</dt><dd>Lawrenceville, Georgia</dd>
-      </dl>
-    </section>
-  </div>
+    </div>
+  </section>
 </main>
 
 <footer>
-  <div class="wrap">© Anh Thu Nguyen · Skylar</div>
+  <div class="wrap">
+    <span class="swap" aria-hidden="true"><img class="is-sky" src="assets/mark-sky.png" alt="" width="28" height="28"><img class="is-jade" src="assets/mark-jade.png" alt="" width="28" height="28"></span>
+    © 2026 Anh Thu Nguyen
+  </div>
 </footer>
 
 <script>
 (function () {
   var body = document.body;
+  var favicon = document.getElementById("favicon");
   var buttons = {
     software: document.getElementById("lens-software"),
     math: document.getElementById("lens-math")
   };
-  function setLens(name) {
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function applyLens(name) {
     body.setAttribute("data-lens", name);
     Object.keys(buttons).forEach(function (key) {
       buttons[key].setAttribute("aria-pressed", String(key === name));
     });
+    favicon.href = name === "math" ? "assets/mark-jade.png" : "assets/favicon.png";
     try { sessionStorage.setItem("lens", name); } catch (e) {}
   }
-  buttons.software.addEventListener("click", function () { setLens("software"); });
-  buttons.math.addEventListener("click", function () { setLens("math"); });
+
+  function switchLens(name) {
+    if (body.getAttribute("data-lens") === name) return;
+    if (document.startViewTransition && !reduceMotion) {
+      document.startViewTransition(function () { applyLens(name); });
+    } else {
+      applyLens(name);
+    }
+  }
+
+  buttons.software.addEventListener("click", function () { switchLens("software"); });
+  buttons.math.addEventListener("click", function () { switchLens("math"); });
+
   var fromUrl = new URLSearchParams(location.search).get("lens");
   var saved = null;
   try { saved = sessionStorage.getItem("lens"); } catch (e) {}
   var start = fromUrl || saved;
-  if (start === "software" || start === "math") setLens(start);
+  if (start === "software" || start === "math") applyLens(start);
 })();
 </script>
 </body>
