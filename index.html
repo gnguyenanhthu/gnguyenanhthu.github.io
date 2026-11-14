@@ -141,11 +141,14 @@ body[data-lens="math"] .lens::after { transform: translateX(100%); }
 .hero h1 .line + .line span { color: transparent; -webkit-text-stroke: 1.5px var(--paper); }
 .degree { margin-top: 28px; max-width: 46ch; color: var(--muted); font-size: 16px; }
 .pitch { margin-top: 18px; max-width: 54ch; font-size: clamp(18px, 1.6vw, 21px); line-height: 1.55; }
-.pitch span { display: none; }
-body[data-lens="software"] .pitch .p-software,
-body[data-lens="math"] .pitch .p-math { display: inline; }
-.open { margin-top: 18px; display: flex; align-items: center; gap: 10px; font: 600 15px var(--font-display); color: var(--accent); }
-.open::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 22%, transparent); }
+/* both versions share one grid cell, so the hero is always as tall as the longer one */
+.pitch, .open { display: grid; }
+.pitch > span, .open > span { grid-area: 1 / 2; visibility: hidden; }
+.pitch > span { grid-column: 1; }
+body[data-lens="software"] .p-software,
+body[data-lens="math"] .p-math { visibility: visible; }
+.open { margin-top: 18px; grid-template-columns: auto 1fr; align-items: center; gap: 10px; font: 600 15px var(--font-display); color: var(--accent); }
+.open::before { content: ""; grid-area: 1 / 1; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 22%, transparent); }
 .stack-sm { display: grid; gap: 12px; align-content: start; }
 .entry .tags { margin-top: 4px; }
 .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
@@ -258,6 +261,11 @@ footer .swap { position: relative; width: 28px; height: 28px; }
   .degree { animation-delay: .35s; } .pitch { animation-delay: .45s; } .open { animation-delay: .52s; } .actions { animation-delay: .6s; }
   .emblem .swap img { animation: breathe 6s ease-in-out 2s infinite; }
 
+  /* project cards: staggered entrance when the grid scrolls in or the lens changes.
+     The border layer flashes the accent as each card lands. "backwards" fill keeps hover working afterwards. */
+  .js .grid .card { opacity: 0; }
+  .js .grid.is-in .card { opacity: 1; animation: card-in .75s var(--ease) backwards; animation-delay: calc(var(--n, 0) * 90ms); }
+
   /* lens change: cross-fade the swapped content */
   ::view-transition-old(root), ::view-transition-new(root) { animation-duration: .45s; animation-timing-function: var(--ease); }
 }
@@ -265,6 +273,11 @@ footer .swap { position: relative; width: 28px; height: 28px; }
 @keyframes node { to { transform: scale(1); } }
 @keyframes rise { from { opacity: 0; transform: scale(.92) rotate(-4deg); filter: blur(6px); } to { opacity: 1; transform: none; filter: none; } }
 @keyframes slide-up { from { transform: translateY(105%); } to { transform: none; } }
+@keyframes card-in {
+  0%   { opacity: 0; transform: translateY(32px); background-color: var(--accent); }
+  55%  { opacity: 1; background-color: var(--accent); }
+  100% { opacity: 1; transform: none; background-color: var(--trace); }
+}
 @keyframes fade-up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 @keyframes breathe {
   0%, 100% { filter: drop-shadow(0 0 22px color-mix(in srgb, var(--accent) 22%, transparent)); }
@@ -305,11 +318,11 @@ footer .swap { position: relative; width: 28px; height: 28px; }
         <p class="degree">B.S. in Information Technology (Software Development) with a second major in Applied Mathematics, Georgia Gwinnett College, December 2025. Summa cum laude, 3.91 GPA.</p>
         <p class="pitch">
           <span class="p-software">Full-stack developer working in TypeScript, React and Next.js on top of PostgreSQL. I design the database, the permissions and the interface, and I care that each one holds up.</span>
-          <span class="p-math">I model systems with differential equations, and I co-authored a sustainable-tourism study published in the UMAP Journal.</span>
+          <span class="p-math">Applied mathematician who models systems with differential equations. I co-authored a sustainable-tourism study published in the UMAP Journal, and I also write production code.</span>
         </p>
         <p class="open">
-          <span data-only="software">Open to software developer and web developer roles.</span>
-          <span data-only="math">Open to roles where mathematical modeling and software meet.</span>
+          <span class="p-software">Open to software developer and web developer roles.</span>
+          <span class="p-math">Open to roles where mathematical modeling and software meet.</span>
         </p>
         <div class="actions">
           <a class="btn primary cut" href="#work">See my projects</a>
@@ -550,6 +563,7 @@ footer .swap { position: relative; width: 28px; height: 28px; }
 
 <script>
 (function () {
+  document.documentElement.classList.add("js");
   var body = document.body;
   var favicon = document.getElementById("favicon");
   var buttons = {
@@ -567,6 +581,35 @@ footer .swap { position: relative; width: 28px; height: 28px; }
     try { sessionStorage.setItem("lens", name); } catch (e) {}
   }
 
+  /* project cards: number each card for the stagger, reveal a grid once it scrolls into view */
+  var grids = Array.prototype.slice.call(document.querySelectorAll(".grid"));
+  grids.forEach(function (grid) {
+    Array.prototype.forEach.call(grid.children, function (card, i) { card.style.setProperty("--n", i); });
+  });
+  var projectsSeen = false;
+  function revealGrids() {
+    grids.forEach(function (grid) {
+      grid.classList.remove("is-in");
+      void grid.offsetWidth; /* restart the animation */
+      grid.classList.add("is-in");
+    });
+  }
+  if ("IntersectionObserver" in window && !reduceMotion) {
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting && !projectsSeen) {
+          projectsSeen = true;
+          revealGrids();
+          observer.disconnect();
+        }
+      });
+    }, { threshold: 0.12 });
+    observer.observe(document.getElementById("work"));
+  } else {
+    projectsSeen = true;
+    grids.forEach(function (grid) { grid.classList.add("is-in"); });
+  }
+
   function switchLens(name) {
     if (body.getAttribute("data-lens") === name) return;
     if (document.startViewTransition && !reduceMotion) {
@@ -574,6 +617,7 @@ footer .swap { position: relative; width: 28px; height: 28px; }
     } else {
       applyLens(name);
     }
+    if (projectsSeen && !reduceMotion) revealGrids();
   }
 
   buttons.software.addEventListener("click", function () { switchLens("software"); });
