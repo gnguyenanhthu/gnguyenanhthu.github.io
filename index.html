@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thu Anh Nguyen Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Layout: one left-aligned column; a lens switch (Software / Math) retunes accent, pitch and order. */
+  --bg: #0c1019;
+  --panel: #131a28;
+  --line: #243049;
+  --text: #e2e8f5;
+  --muted: #94a0b8;
+  --accent: #a99bff;      /* software lens: violet, echoing the Almost Lover rings */
+  --accent-ink: #14102b;
+  --font-display: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  --font-body: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: dark;
+}
+body[data-lens="math"] { --accent: #6fd8ee; --accent-ink: #06222a; }
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font: 400 17px/1.6 var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent); text-underline-offset: 3px; }
+a:hover { color: var(--text); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+.wrap { max-width: 880px; margin: 0 auto; padding: 0 20px; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; }
+p { margin: 0; }
+.skip { position: absolute; left: -999px; }
+.skip:focus { left: 12px; top: 12px; background: var(--accent); color: var(--accent-ink); padding: 8px 12px; z-index: 5; }
+
+/* top bar */
+.bar { border-bottom: 1px solid var(--line); }
+.bar .wrap { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; justify-content: space-between; padding-top: 14px; padding-bottom: 14px; }
+.bar nav { display: flex; flex-wrap: wrap; gap: 4px 20px; font-size: 15px; }
+.bar nav a { color: var(--muted); text-decoration: none; }
+.bar nav a:hover { color: var(--text); }
+.mark { font: 600 15px var(--font-display); color: var(--text); text-decoration: none; }
+
+/* lens switch */
+.lens { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 3px; background: var(--panel); }
+.lens button {
+  font: 600 13px var(--font-display); color: var(--muted); background: none; border: 0;
+  padding: 7px 16px; border-radius: 999px; cursor: pointer; min-height: 36px;
+}
+.lens button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+
+/* hero */
+.hero { padding: 64px 0 40px; }
+.hero h1 { font-size: clamp(38px, 8vw, 68px); font-weight: 800; line-height: 1.02; letter-spacing: -0.03em; }
+.pitch { margin-top: 22px; max-width: 58ch; font-size: 20px; color: var(--text); }
+.pitch span { display: none; }
+body[data-lens="software"] .pitch .p-software,
+body[data-lens="math"] .pitch .p-math { display: inline; }
+.links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+.btn {
+  display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px;
+  border: 1px solid var(--line); border-radius: 8px; background: var(--panel);
+  color: var(--text); text-decoration: none; font-weight: 500; font-size: 15px;
+}
+.btn:hover { border-color: var(--accent); color: var(--text); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+.btn.primary:hover { color: var(--accent-ink); filter: brightness(1.08); }
+
+/* sections */
+section { padding: 44px 0; border-top: 1px solid var(--line); }
+h2 { font-size: 22px; font-weight: 600; margin-bottom: 24px; }
+.stack { display: flex; flex-direction: column; gap: 16px; }
+
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 22px; display: flex; flex-direction: column; gap: 12px; }
+.card h3 { font-size: 18px; font-weight: 600; }
+.card .sub { color: var(--muted); font-size: 15px; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; padding: 0; margin: 0; }
+.tags li { font: 400 13px var(--font-display); color: var(--muted); border: 1px solid var(--line); border-radius: 6px; padding: 3px 9px; }
+.card ul.points { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+.status { font: 600 12px var(--font-display); color: var(--accent); }
+
+.todo { border-style: dashed; background: transparent; color: var(--muted); }
+.todo h3 { color: var(--muted); }
+.todo p { font-size: 15px; }
+
+[data-only] { display: none; }
+body[data-lens="software"] [data-only="software"],
+body[data-lens="math"] [data-only="math"] { display: flex; }
+
+/* resume rows */
+.row { display: grid; grid-template-columns: 150px 1fr; gap: 6px 24px; padding: 18px 0; border-bottom: 1px solid var(--line); }
+.row:last-child { border-bottom: 0; }
+.row time { font: 400 14px var(--font-display); color: var(--muted); padding-top: 3px; }
+.row h3 { font-size: 17px; font-weight: 600; margin-bottom: 4px; }
+.row p { color: var(--muted); font-size: 16px; }
+
+/* skills */
+.skills { display: flex; flex-direction: column; gap: 18px; }
+.skill-group { display: flex; flex-direction: column; gap: 8px; }
+.skill-group h3 { font-size: 15px; font-weight: 600; color: var(--muted); }
+body[data-lens="math"] .skill-group.is-math { order: -1; }
+
+.contact { display: grid; grid-template-columns: 150px 1fr; gap: 8px 24px; margin: 0; }
+.contact dt { color: var(--muted); font: 400 14px var(--font-display); padding-top: 2px; }
+.contact dd { margin: 0; }
+.placeholder { color: var(--muted); font-family: var(--font-display); font-size: 15px; }
+
+footer { border-top: 1px solid var(--line); padding: 28px 0 48px; color: var(--muted); font-size: 14px; }
+
+@media (max-width: 560px) {
+  body { font-size: 16px; }
+  .row, .contact { grid-template-columns: 1fr; }
+  .hero { padding-top: 40px; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body data-lens="software">
+<a class="skip" href="#work">Skip to projects</a>
+
+<header class="bar">
+  <div class="wrap">
+    <a class="mark" href="#top">thu.anh.nguyen</a>
+    <nav aria-label="Sections">
+      <a href="#work">Projects</a>
+      <a href="#resume">Resume</a>
+      <a href="#youtube">YouTube</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <div class="lens" role="group" aria-label="Show my work as">
+      <button type="button" id="lens-software" aria-pressed="true">Software</button>
+      <button type="button" id="lens-math" aria-pressed="false">Math</button>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+  <div class="wrap">
+    <div class="hero">
+      <h1>Thu Anh<br>Nguyen</h1>
+      <p class="pitch">
+        <span class="p-software">Software developer with a B.S. in Information Technology and a second major in Applied Math. I build full-stack web apps, from database schema to the page people use.</span>
+        <span class="p-math">Applied mathematics graduate who also writes production code. I am looking for roles where modeling and software meet.</span>
+      </p>
+      <div class="links">
+        <a class="btn primary" href="#resume">Read my resume</a>
+        <a class="btn" href="https://www.youtube.com/@AlmostLover" rel="noopener">YouTube channel</a>
+        <a class="btn" href="https://almostlover.space" rel="noopener">Almost Lover site</a>
+      </div>
+    </div>
+
+    <section id="work" aria-labelledby="work-h">
+      <h2 id="work-h">Projects</h2>
+      <div class="stack">
+        <article class="card">
+          <span class="status">In development</span>
+          <h3>Almost Lover</h3>
+          <p class="sub">A Vietnamese-language lookup site for audio dramas, novels and manhua, built like an encyclopedia. It hosts no content itself. Each work links to its authors, voice actors and artists, who each get an image, a bio and a list of works.</p>
+          <ul class="points">
+            <li>Member accounts with favorites, votes and comments.</li>
+            <li>Five permission levels, from member to administrator.</li>
+            <li>Original-size image downloads from object storage.</li>
+          </ul>
+          <ul class="tags" aria-label="Technology">
+            <li>Next.js</li><li>Supabase</li><li>PostgreSQL</li><li>Cloudflare R2</li><li>Vercel</li>
+          </ul>
+          <p><a href="https://almostlover.space" rel="noopener">almostlover.space</a></p>
+        </article>
+
+        <article class="card">
+          <h3>This portfolio</h3>
+          <p class="sub">A single hand-written page with no framework. The Software and Math switch above changes the pitch, the accent color and the order of my skills for the role I am applying to.</p>
+          <ul class="tags" aria-label="Technology"><li>HTML</li><li>CSS</li><li>JavaScript</li></ul>
+        </article>
+
+        <article class="card todo" data-only="software">
+          <h3>Add a software project</h3>
+          <p>Name, one sentence on what it does, your part in it, the stack, and a link to the live site or repository.</p>
+        </article>
+        <article class="card todo" data-only="math">
+          <h3>Add a math project</h3>
+          <p>A course project, a model you built, or a problem you solved. Say what the question was, the method you used, and the result.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="resume" aria-labelledby="resume-h">
+      <h2 id="resume-h">Resume</h2>
+      <div>
+        <div class="row">
+          <time>Dec 2025</time>
+          <div>
+            <h3>B.S., Georgia Gwinnett College</h3>
+            <p>Information Technology, Software Development concentration. Second major in Applied Math. Transferred from SUNY Old Westbury.</p>
+          </div>
+        </div>
+        <div class="row">
+          <time class="placeholder">Dates</time>
+          <div>
+            <h3 class="placeholder">Add your job title, employer</h3>
+            <p>Two or three lines on what you did, with a number where you have one.</p>
+          </div>
+        </div>
+        <div class="row">
+          <time class="placeholder">Dates</time>
+          <div>
+            <h3 class="placeholder">Add an internship, research role or leadership role</h3>
+            <p>Same format as above. Delete rows you do not need.</p>
+          </div>
+        </div>
+      </div>
+
+      <h2 style="margin-top:36px">Skills</h2>
+      <div class="skills">
+        <div class="skill-group">
+          <h3>Web development</h3>
+          <ul class="tags"><li>TypeScript</li><li>React</li><li>Next.js</li><li>HTML and CSS</li><li>SQL</li><li>Supabase</li><li>Git</li></ul>
+        </div>
+        <div class="skill-group is-math">
+          <h3>Mathematics</h3>
+          <ul class="tags"><li class="placeholder">Add your strongest topics, for example linear algebra, probability, numerical methods</li></ul>
+        </div>
+        <div class="skill-group">
+          <h3>Languages</h3>
+          <ul class="tags"><li>English</li><li>Vietnamese</li></ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="youtube" aria-labelledby="yt-h">
+      <h2 id="yt-h">YouTube</h2>
+      <article class="card">
+        <h3>Almost Lover channel</h3>
+        <p class="sub">I run the Almost Lover channel alongside the website. Add one line here on what you publish, how often, and your subscriber or view count if you want to show it.</p>
+        <p><a class="btn primary" href="https://www.youtube.com/@AlmostLover" rel="noopener">Open the channel</a></p>
+      </article>
+    </section>
+
+    <section id="contact" aria-labelledby="contact-h">
+      <h2 id="contact-h">Contact</h2>
+      <dl class="contact">
+        <dt>Email</dt><dd class="placeholder">your-email@example.com</dd>
+        <dt>GitHub</dt><dd class="placeholder">github.com/your-handle</dd>
+        <dt>LinkedIn</dt><dd class="placeholder">linkedin.com/in/your-handle</dd>
+        <dt>YouTube</dt><dd><a href="https://www.youtube.com/@AlmostLover" rel="noopener">youtube.com/@AlmostLover</a></dd>
+      </dl>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">Thu Anh Nguyen. Grey dashed boxes and grey monospace text mark content still to fill in.</div>
+</footer>
+
+<script>
+(function () {
+  var body = document.body;
+  var buttons = {
+    software: document.getElementById("lens-software"),
+    math: document.getElementById("lens-math")
+  };
+  function setLens(name) {
+    body.setAttribute("data-lens", name);
+    Object.keys(buttons).forEach(function (key) {
+      buttons[key].setAttribute("aria-pressed", String(key === name));
+    });
+    try { sessionStorage.setItem("lens", name); } catch (e) {}
+  }
+  buttons.software.addEventListener("click", function () { setLens("software"); });
+  buttons.math.addEventListener("click", function () { setLens("math"); });
+  try {
+    var saved = sessionStorage.getItem("lens");
+    if (saved === "software" || saved === "math") setLens(saved);
+  } catch (e) {}
+})();
+</script>
+</body>
+</html>
