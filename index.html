@@ -261,10 +261,11 @@ footer .swap { position: relative; width: 28px; height: 28px; }
   .degree { animation-delay: .35s; } .pitch { animation-delay: .45s; } .open { animation-delay: .52s; } .actions { animation-delay: .6s; }
   .emblem .swap img { animation: breathe 6s ease-in-out 2s infinite; }
 
-  /* project cards: staggered entrance when the grid scrolls in or the lens changes.
-     The border layer flashes the accent as each card lands. "backwards" fill keeps hover working afterwards. */
-  .js .grid .card { opacity: 0; }
-  .js .grid.is-in .card { opacity: 1; animation: card-in .75s var(--ease) backwards; animation-delay: calc(var(--n, 0) * 90ms); }
+  /* scroll reveal: each item appears as it scrolls into view; items arriving together are staggered.
+     Cards also flash the accent on their border as they land. "backwards" fill keeps hover working afterwards. */
+  [data-reveal] { opacity: 0; }
+  [data-reveal].is-in { opacity: 1; animation: reveal .7s var(--ease) backwards; animation-delay: var(--d, 0ms); }
+  .card[data-reveal].is-in { animation-name: card-in; animation-duration: .8s; }
 
   /* lens change: cross-fade the swapped content */
   ::view-transition-old(root), ::view-transition-new(root) { animation-duration: .45s; animation-timing-function: var(--ease); }
@@ -273,6 +274,7 @@ footer .swap { position: relative; width: 28px; height: 28px; }
 @keyframes node { to { transform: scale(1); } }
 @keyframes rise { from { opacity: 0; transform: scale(.92) rotate(-4deg); filter: blur(6px); } to { opacity: 1; transform: none; filter: none; } }
 @keyframes slide-up { from { transform: translateY(105%); } to { transform: none; } }
+@keyframes reveal { from { opacity: 0; transform: translateY(24px); } }
 @keyframes card-in {
   0%   { opacity: 0; transform: translateY(32px); background-color: var(--accent); }
   55%  { opacity: 1; background-color: var(--accent); }
@@ -581,43 +583,44 @@ footer .swap { position: relative; width: 28px; height: 28px; }
     try { sessionStorage.setItem("lens", name); } catch (e) {}
   }
 
-  /* project cards: number each card for the stagger, reveal a grid once it scrolls into view */
-  var grids = Array.prototype.slice.call(document.querySelectorAll(".grid"));
-  grids.forEach(function (grid) {
-    Array.prototype.forEach.call(grid.children, function (card, i) { card.style.setProperty("--n", i); });
-  });
-  var projectsSeen = false;
-  function revealGrids() {
-    grids.forEach(function (grid) {
-      grid.classList.remove("is-in");
-      void grid.offsetWidth; /* restart the animation */
-      grid.classList.add("is-in");
-    });
-  }
+  /* scroll reveal: items appear as they scroll into view */
+  var observer = null;
   if ("IntersectionObserver" in window && !reduceMotion) {
-    var observer = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting && !projectsSeen) {
-          projectsSeen = true;
-          revealGrids();
-          observer.disconnect();
-        }
+    observer = new IntersectionObserver(function (entries) {
+      var arriving = entries.filter(function (e) { return e.isIntersecting; });
+      arriving.sort(function (a, b) {
+        return (a.boundingClientRect.top - b.boundingClientRect.top) || (a.boundingClientRect.left - b.boundingClientRect.left);
       });
-    }, { threshold: 0.12 });
-    observer.observe(document.getElementById("work"));
-  } else {
-    projectsSeen = true;
-    grids.forEach(function (grid) { grid.classList.add("is-in"); });
+      arriving.forEach(function (entry, i) {
+        entry.target.style.setProperty("--d", Math.min(i, 5) * 90 + "ms");
+        entry.target.classList.add("is-in");
+        observer.unobserve(entry.target);
+      });
+    }, { threshold: 0.15, rootMargin: "0px 0px -6% 0px" });
+
+    Array.prototype.forEach.call(
+      document.querySelectorAll(".sec-head, .card, .entry, .skill-group"),
+      function (el) { el.setAttribute("data-reveal", ""); observer.observe(el); }
+    );
+  }
+
+  /* after a lens switch, replay the reveal for the items that just appeared */
+  function replayReveal(name) {
+    if (!observer) return;
+    Array.prototype.forEach.call(
+      document.querySelectorAll('[data-only="' + name + '"][data-reveal], [data-only="' + name + '"] [data-reveal]'),
+      function (el) { el.classList.remove("is-in"); observer.observe(el); }
+    );
   }
 
   function switchLens(name) {
     if (body.getAttribute("data-lens") === name) return;
     if (document.startViewTransition && !reduceMotion) {
-      document.startViewTransition(function () { applyLens(name); });
+      document.startViewTransition(function () { applyLens(name); replayReveal(name); });
     } else {
       applyLens(name);
+      replayReveal(name);
     }
-    if (projectsSeen && !reduceMotion) revealGrids();
   }
 
   buttons.software.addEventListener("click", function () { switchLens("software"); });
